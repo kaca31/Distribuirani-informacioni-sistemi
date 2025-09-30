@@ -1,7 +1,7 @@
 package com.example.catalog_service.controller;
 
-import com.example.catalog_service.Book;
 import com.example.catalog_service.dto.BookDTO;
+import com.example.catalog_service.model.Book;
 import com.example.catalog_service.repository.BookRepository;
 
 import jakarta.validation.Valid;

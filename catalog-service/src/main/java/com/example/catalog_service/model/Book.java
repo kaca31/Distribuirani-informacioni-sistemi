@@ -1,4 +1,4 @@
-package com.example.catalog_service;
+package com.example.catalog_service.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
