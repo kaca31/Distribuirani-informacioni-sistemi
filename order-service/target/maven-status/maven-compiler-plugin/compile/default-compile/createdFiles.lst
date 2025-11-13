@@ -1,0 +1,9 @@
+com\example\orderservice\model\Order$OrderBuilder.class
+com\example\orderservice\dto\OrderRequest.class
+com\example\orderservice\dto\OrderRequest$OrderRequestBuilder.class
+com\example\orderservice\OrderServiceApplication.class
+com\example\orderservice\controller\RestConfig.class
+com\example\orderservice\repository\OrderRepository.class
+com\example\orderservice\controller\OrderController.class
+com\example\orderservice\service\OrderService.class
+com\example\orderservice\model\Order.class

@@ -1,0 +1,8 @@
+com\example\reviewservice\service\ReviewService.class
+com\example\reviewservice\model\Review.class
+com\example\reviewservice\controller\ReviewController.class
+com\example\reviewservice\model\Review$ReviewBuilder.class
+com\example\reviewservice\repository\ReviewRepository.class
+com\example\reviewservice\dto\ReviewDto$ReviewDtoBuilder.class
+com\example\reviewservice\ReviewServiceApplication.class
+com\example\reviewservice\dto\ReviewDto.class

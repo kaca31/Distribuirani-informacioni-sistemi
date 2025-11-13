@@ -1,0 +1,99 @@
+services:
+  catalog-service:
+    build: ./catalog-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - catalog-db
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - user-db
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - order-db
+      - catalog-db
+      - inventory-db
+
+  inventory-service:
+    build: ./inventory-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - inventory-db
+
+  review-service:
+    build: ./review-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - review-db
+
+  catalog-db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5541:5432"
+    volumes:
+      - catalog-data:/var/lib/postgresql/data
+
+  user-db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5542:5432"
+    volumes:
+      - user-data:/var/lib/postgresql/data
+
+  order-db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5543:5432"
+    volumes:
+      - order-data:/var/lib/postgresql/data
+
+  inventory-db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: inventorydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5544:5432"
+    volumes:
+      - inventory-data:/var/lib/postgresql/data
+
+  review-db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: reviewdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5545:5432"
+    volumes:
+      - review-data:/var/lib/postgresql/data
+
+volumes:
+  catalog-data:
+  user-data:
+  order-data:
+  inventory-data:
+  review-data:
