@@ -24,13 +24,16 @@ public class InventoryService {
     }
 
     public InventoryDto decrease(Long bookId, int amount) {
-        Inventory i = repo.findById(bookId).orElse(null);
-        if (i == null)
-            return null;
-        if (i.getQuantityAvailable() < amount)
-            throw new RuntimeException("Not enough stock");
-        i.setQuantityAvailable(i.getQuantityAvailable() - amount);
-        Inventory saved = repo.save(i);
-        return new InventoryDto(saved.getBookId(), saved.getQuantityAvailable());
-    }
+    Inventory i = repo.findById(bookId).orElse(null);
+    if (i == null)
+        throw new RuntimeException("Book not found in inventory");
+
+    if (i.getQuantityAvailable() < amount)
+        throw new RuntimeException("Not enough stock"); // -> HTTP 400
+
+    i.setQuantityAvailable(i.getQuantityAvailable() - amount);
+    Inventory saved = repo.save(i);
+    return new InventoryDto(saved.getBookId(), saved.getQuantityAvailable());
+}
+
 }

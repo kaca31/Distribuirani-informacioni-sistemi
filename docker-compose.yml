@@ -36,6 +36,30 @@ services:
     depends_on:
       - review-db
 
+  discovery-server:
+    build:
+      context: ./discovery-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health || exit 1"]
+      interval: 5s
+      retries: 10
+
+
+  gateway-service:
+    build: ./gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-server
+      - catalog-service
+      - user-service
+      - order-service
+      - inventory-service
+      - review-service
+
+
   catalog-db:
     image: postgres:14
     environment:

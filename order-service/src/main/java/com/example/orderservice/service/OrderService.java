@@ -4,9 +4,12 @@ import com.example.orderservice.dto.OrderRequest;
 import com.example.orderservice.model.Order;
 import com.example.orderservice.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 public class OrderService {
@@ -18,20 +21,45 @@ public class OrderService {
         this.rest = rest;
     }
 
-    public Order create(OrderRequest r) {
-        var book = rest.getForObject("http://catalog-service:8081/api/books/" + r.getBookId(), java.util.Map.class);
-        if (book == null)
-            throw new RuntimeException("Book not found");
-        BigDecimal price = new BigDecimal(book.get("price").toString());
-        BigDecimal total = price.multiply(BigDecimal.valueOf(r.getQuantity()));
-        // ensure inventory exists (create if needed)
-        rest.postForLocation("http://inventory-service:8084/api/inventory",
-                java.util.Map.of("bookId", r.getBookId(), "quantityAvailable", 0));
-        // decrease inventory
-        rest.put("http://inventory-service:8084/api/inventory/" + r.getBookId() + "/decrease",
-                java.util.Map.of("amount", r.getQuantity()));
-        Order o = Order.builder().bookId(r.getBookId()).userId(r.getUserId()).quantity(r.getQuantity())
-                .totalPrice(total).orderDate(LocalDateTime.now()).build();
-        return repo.save(o);
+   public Order create(OrderRequest r) {
+    Map<String, Object> book = rest.getForObject(
+            "http://catalog-service:8081/api/books/" + r.getBookId(), Map.class);
+    if (book == null)
+        throw new RuntimeException("Book not found");
+
+    BigDecimal price = new BigDecimal(book.get("price").toString());
+    BigDecimal total = price.multiply(BigDecimal.valueOf(r.getQuantity()));
+
+    Map<String, Object> inventory = rest.getForObject(
+            "http://inventory-service:8084/api/inventory/" + r.getBookId(), Map.class);
+
+    if (inventory == null || (Integer) inventory.get("quantityAvailable") < r.getQuantity()) {
+        throw new RuntimeException("Not enough stock in inventory");
     }
+
+    Order o = Order.builder()
+            .bookId(r.getBookId())
+            .userId(r.getUserId())
+            .quantity(r.getQuantity())
+            .totalPrice(total)
+            .orderDate(LocalDateTime.now())
+            .build();
+
+    Order savedOrder = repo.save(o);
+
+    try {
+        rest.put(
+                "http://inventory-service:8084/api/inventory/" + r.getBookId() + "/decrease",
+                Map.of("amount", r.getQuantity())
+        );
+    } catch (HttpClientErrorException e) {
+        // rollback order ako inventory ne uspe
+        repo.delete(savedOrder);
+        throw new RuntimeException("Failed to decrease inventory, order rolled back: "
+                + e.getResponseBodyAsString());
+    }
+
+    return savedOrder;
+}
+
 }
