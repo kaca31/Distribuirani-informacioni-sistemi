@@ -47,4 +47,15 @@ public class BookService {
         return BookDto.builder().id(b.getId()).title(b.getTitle()).author(b.getAuthor()).price(b.getPrice())
                 .stockQuantity(b.getStockQuantity()).build();
     }
+
+    public void decreaseStock(Long bookId, int amount) {
+        Book book = repo.findById(bookId)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+        if (book.getStockQuantity() < amount) {
+            throw new RuntimeException("Not enough stock in catalog");
+        }
+        book.setStockQuantity(book.getStockQuantity() - amount);
+        repo.save(book);
+    }
+
 }

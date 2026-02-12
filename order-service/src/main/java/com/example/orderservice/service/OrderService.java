@@ -9,7 +9,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+
 
 @Service
 public class OrderService {
@@ -53,13 +55,25 @@ public class OrderService {
                 Map.of("amount", r.getQuantity())
         );
     } catch (HttpClientErrorException e) {
-        // rollback order ako inventory ne uspe
         repo.delete(savedOrder);
         throw new RuntimeException("Failed to decrease inventory, order rolled back: "
                 + e.getResponseBodyAsString());
     }
 
+    rest.put(
+            "http://catalog-service:8081/api/books/" + r.getBookId() + "/decreaseStock",
+            Map.of("amount", r.getQuantity()));
+
     return savedOrder;
 }
+
+
+    public List<Order> getAll() {
+        return repo.findAll();
+    }
+
+    public Order get(Long id) {
+        return repo.findById(id).orElse(null);
+    }
 
 }

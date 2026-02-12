@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/books")
@@ -44,4 +45,19 @@ public class BookController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}/decreaseStock")
+    public ResponseEntity<Void> decreaseStock(
+            @PathVariable Long id,
+            @RequestBody Map<String, Integer> body) {
+
+        Integer amount = body.get("amount");
+        if (amount == null || amount <= 0) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        service.decreaseStock(id, amount);
+        return ResponseEntity.ok().build();
+    }
+
 }
